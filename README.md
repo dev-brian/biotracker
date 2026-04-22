@@ -47,7 +47,6 @@ Simula la acumulación de fosfocreatina muscular a lo largo de días de suplemen
 # 1. Clonar el repositorio
 git clone https://github.com/dev-brian/biotracker.git
 cd biotracker
-```
 
 # 2. Crear entorno virtual
 python -m venv .venv
