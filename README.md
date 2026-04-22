@@ -45,8 +45,9 @@ Simula la acumulación de fosfocreatina muscular a lo largo de días de suplemen
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/biotracker.git
+git clone https://github.com/dev-brian/biotracker.git
 cd biotracker
+```
 
 # 2. Crear entorno virtual
 python -m venv .venv
@@ -155,4 +156,5 @@ S(t) = I/k + (S₀ - I/k) · e^(-k·t)
 
 ## 📄 Licencia
 
+Este proyecto está bajo la Licencia **MIT**. Consulta el archivo `LICENSE` para más detalles.
 Proyecto académico — Universidad Tecnológica de Tlaxcala, 2026.
