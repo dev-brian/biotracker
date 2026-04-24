@@ -1,9 +1,12 @@
 """
-BioTracker — Vista del Módulo de Cafeína
-=========================================
-Interfaz amigable para el modelo farmacocinético de cafeína.
-Modo normal: gráficas y métricas comprensibles para todos.
-Modo Pro: proceso de Laplace paso a paso + tabla de errores detallada.
+BioTracker — Vista del Módulo de Cafeína (v2)
+===============================================
+Interfaz mejorada con doble método de entrada:
+  1. Manual — Slider libre de mg
+  2. Catálogo de Productos — Selección desde la base de datos completa
+
+Incluye tarjeta informativa del producto seleccionado, simulación
+farmacocinética con Laplace/Euler, y Modo Pro.
 """
 
 import streamlit as st
@@ -13,6 +16,7 @@ import plotly.graph_objects as go
 from functools import partial
 
 from models import caffeine
+from models import caffeine_data
 from models.solvers import euler_method, calcular_errores
 
 
@@ -21,21 +25,60 @@ def render():
 
     st.header("☕ Cafeína — ¿Cuánto dura el efecto?")
     st.markdown(
-        "Cuando tomas café, tu cuerpo **absorbe** la cafeína rápidamente y luego "
-        "la **elimina** poco a poco. Esta simulación te muestra exactamente "
-        "**cuándo sientes el pico de energía** y **cuándo llega el bajón**."
+        "La cafeína es un **alcaloide del grupo de las xantinas** que actúa como "
+        "**antagonista de los receptores de adenosina** en el cerebro. "
+        "Al bloquear la adenosina (que provoca sedación), estimula el sistema nervioso "
+        "central y evita la aparición de fatiga y somnolencia."
     )
 
     # ================================================================
-    # SIDEBAR — Parámetros de entrada
+    # SIDEBAR — Método de ingreso
     # ================================================================
     st.sidebar.markdown("### ☕ Tu consumo")
 
-    dosis = st.sidebar.slider(
-        "¿Cuánta cafeína consumiste? (mg)",
-        min_value=50, max_value=400, value=200, step=25,
-        help="☕ Café filtrado: ~95 mg · ☕ Espresso: ~63 mg · 🥤 Energy drink: ~80-160 mg · 💊 Pastilla: ~200 mg"
+    metodo = st.sidebar.radio(
+        "Método de ingreso",
+        ["📝 Manual", "📖 Catálogo de Productos"],
+        help="Manual: ingresa la dosis libremente. Catálogo: elige un producto real y usa su dosis."
     )
+
+    # ------ Método: Catálogo de Productos ------
+    if metodo == "📖 Catálogo de Productos":
+        tipo_absorcion = st.sidebar.selectbox(
+            "Tipo de absorción",
+            list(caffeine_data.CATEGORIAS.keys()),
+            help="🌿 Natural: café, té, chocolate · ⚡ Sintética: pastillas, pre-workouts · 🕐 Lenta: liberación sostenida"
+        )
+
+        st.sidebar.caption(caffeine_data.CATEGORIAS[tipo_absorcion]["descripcion"])
+
+        productos_cat = caffeine_data.obtener_nombres_por_categoria(tipo_absorcion)
+        producto_nombre = st.sidebar.selectbox("Producto", productos_cat)
+
+        producto = caffeine_data.obtener_producto(producto_nombre)
+
+        # Slider acotado al rango del producto
+        dosis = st.sidebar.slider(
+            f"Dosis ({producto['mg_min']}-{producto['mg_max']} mg)",
+            min_value=producto["mg_min"],
+            max_value=max(producto["mg_max"], producto["mg_min"] + 1),
+            value=int(caffeine_data.dosis_promedio(producto)),
+            step=5,
+            help=f"Rango típico para {producto['nombre']}. Dosis recomendada: {producto['dosis_recomendada']}"
+        )
+
+        # Factor de absorción del producto
+        ka_base = caffeine.KA_DEFAULT * producto["ka_factor"]
+
+    # ------ Método: Manual ------
+    else:
+        producto = None
+        dosis = st.sidebar.slider(
+            "¿Cuánta cafeína consumiste? (mg)",
+            min_value=50, max_value=400, value=200, step=25,
+            help="☕ Café filtrado: ~95 mg · ☕ Espresso: ~63 mg · 🥤 Energy drink: ~80-160 mg · 💊 Pastilla: ~200 mg"
+        )
+        ka_base = caffeine.KA_DEFAULT
 
     peso = st.sidebar.slider(
         "Tu peso corporal (kg)",
@@ -47,8 +90,9 @@ def render():
     with st.sidebar.expander("⚙️ Parámetros avanzados"):
         ka = st.slider(
             "Velocidad de absorción (k_a)",
-            min_value=1.0, max_value=8.0, value=caffeine.KA_DEFAULT, step=0.1,
-            help="Qué tan rápido pasa la cafeína del estómago a la sangre. Mayor = más rápido."
+            min_value=0.5, max_value=10.0, value=float(round(ka_base, 2)), step=0.1,
+            help="Qué tan rápido pasa la cafeína del estómago a la sangre. Mayor = más rápido. "
+                 "Se ajusta automáticamente al seleccionar un producto."
         )
 
         ke = st.slider(
@@ -71,7 +115,7 @@ def render():
 
     # Usar defaults si no se abrió el expander
     if 'ka' not in dir():
-        ka = caffeine.KA_DEFAULT
+        ka = ka_base
     if 'ke' not in dir():
         ke = caffeine.KE_DEFAULT
     if 'dt' not in dir():
@@ -80,6 +124,48 @@ def render():
         duracion = 24
 
     vida_media = np.log(2) / ke
+
+    # ================================================================
+    # TARJETA INFORMATIVA DEL PRODUCTO (solo en modo catálogo)
+    # ================================================================
+    if producto:
+        cat_color = caffeine_data.CATEGORIAS[tipo_absorcion]["color"]
+
+        st.markdown(
+            f"""
+            <div class="bio-card" style="border-left: 4px solid {cat_color}; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 0.3rem 0;">{producto['nombre']}</h3>
+                        <span style="
+                            background: {cat_color}22;
+                            color: {cat_color};
+                            padding: 2px 10px;
+                            border-radius: 12px;
+                            font-size: 0.8rem;
+                            font-weight: 600;
+                        ">{tipo_absorcion}</span>
+                        <p style="margin-top: 0.8rem; opacity: 0.8; font-size: 0.9rem;">
+                            <strong>📊 Cafeína:</strong> {producto['mg_min']}-{producto['mg_max']} mg por porción<br>
+                            <strong>💊 Dosis:</strong> {producto['dosis_recomendada']}<br>
+                            <strong>💰 Costo:</strong> {producto['costo']}
+                        </p>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <p style="font-size: 0.85rem; opacity: 0.8;">
+                            <strong>✅ Indicado para:</strong> {producto['indicado']}<br>
+                            <strong>⚠️ No recomendado:</strong> {producto['contraindicado']}<br>
+                            <strong>🏅 Deportes:</strong> {', '.join(producto['deportes'])}
+                        </p>
+                        <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 0.5rem;">
+                            <strong>Marcas:</strong> {', '.join(producto['marcas'][:4])}{'...' if len(producto['marcas']) > 4 else ''}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     # ================================================================
     # CÁLCULOS
@@ -109,7 +195,6 @@ def render():
     # Métricas principales (lenguaje humano)
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1:
-        # Convertir a formato hora:minutos legible
         horas_pico = int(t_max)
         minutos_pico = int((t_max - horas_pico) * 60)
         st.metric("⚡ Pico de energía", f"{horas_pico}h {minutos_pico}min")
@@ -127,9 +212,9 @@ def render():
 
     # Interpretación en lenguaje natural
     if bajon:
-        hora_cafe = "por la mañana"
+        producto_texto = f" de **{producto['nombre']}**" if producto else ""
         st.info(
-            f"☕ Con **{dosis} mg** de cafeína, sentirás el **máximo efecto a los "
+            f"☕ Con **{dosis} mg** de cafeína{producto_texto}, sentirás el **máximo efecto a los "
             f"{horas_pico}h {minutos_pico}min**. El efecto disminuirá al 50% aproximadamente "
             f"a las **{horas_bajon}h {minutos_bajon}min** después de consumirla. "
             f"Tu cuerpo tarda unas **{vida_media:.0f} horas** en eliminar la mitad de la cafeína."
@@ -138,6 +223,9 @@ def render():
     # ================================================================
     # GRÁFICA PLOTLY
     # ================================================================
+    titulo_grafica = f"Concentración de Cafeína en Sangre — {dosis} mg, {peso} kg"
+    if producto:
+        titulo_grafica = f"{producto['nombre']} ({dosis} mg) — {peso} kg"
 
     fig = go.Figure()
 
@@ -185,7 +273,7 @@ def render():
 
     fig.update_layout(
         title=dict(
-            text=f"Concentración de Cafeína en Sangre — {dosis} mg, {peso} kg",
+            text=titulo_grafica,
             font=dict(size=15)
         ),
         xaxis_title="Tiempo después de consumir (horas)",
@@ -239,6 +327,13 @@ def render():
             st.latex(r"C(0) = 0 \text{ mg/L}")
             st.markdown("**Parámetros:**")
             st.latex(rf"k_a = {ka} \text{{ h}}^{{-1}}, \quad k_e = {ke:.3f} \text{{ h}}^{{-1}}")
+
+        if producto:
+            st.caption(
+                f"💡 **Nota:** El valor de k_a fue ajustado automáticamente a {ka:.2f} "
+                f"basado en la velocidad de absorción de **{producto['nombre']}** "
+                f"(factor ×{producto['ka_factor']})."
+            )
 
         # --- Resolución por Laplace ---
         st.markdown("---")

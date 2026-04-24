@@ -171,6 +171,140 @@ st.markdown(
         font-weight: 600;
         border-radius: 8px;
     }
+
+    /* ===== RESPONSIVE — TABLET (≤1024px) ===== */
+    @media (max-width: 1024px) {
+        /* Reducir padding general */
+        .block-container {
+            padding: 1rem 1.5rem !important;
+        }
+
+        /* Cards más compactas */
+        .bio-card {
+            padding: 1.2rem;
+            border-radius: 12px;
+        }
+
+        /* Métricas: fuente más pequeña */
+        [data-testid="stMetric"] {
+            padding: 0.7rem;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 1.3rem !important;
+        }
+
+        [data-testid="stMetricLabel"] {
+            font-size: 0.8rem !important;
+        }
+    }
+
+    /* ===== RESPONSIVE — MÓVIL (≤768px) ===== */
+    @media (max-width: 768px) {
+        /* Reducir padding en móvil */
+        .block-container {
+            padding: 0.5rem 0.8rem !important;
+        }
+
+        /* Títulos más pequeños */
+        h1 { font-size: 1.8rem !important; }
+        h2 { font-size: 1.4rem !important; }
+        h3 { font-size: 1.15rem !important; }
+        h4 { font-size: 1rem !important; }
+
+        /* Hero text smaller */
+        .bio-gradient-text {
+            font-size: 2.2rem !important;
+        }
+
+        /* Cards adaptadas */
+        .bio-card {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .bio-card h3 {
+            font-size: 1.05rem !important;
+        }
+
+        .bio-card h4 {
+            font-size: 0.95rem !important;
+        }
+
+        .bio-card p {
+            font-size: 0.82rem !important;
+        }
+
+        /* Métricas compactas en móvil */
+        [data-testid="stMetric"] {
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 1.1rem !important;
+        }
+
+        [data-testid="stMetricLabel"] {
+            font-size: 0.72rem !important;
+        }
+
+        /* Plotly charts: menor altura */
+        [data-testid="stPlotlyChart"] > div {
+            max-height: 350px;
+        }
+
+        /* Tablas más compactas */
+        [data-testid="stDataFrame"] {
+            font-size: 0.75rem !important;
+        }
+
+        /* Pro panel compacto */
+        .pro-panel {
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+        }
+
+        /* LaTeX más pequeño */
+        .katex { font-size: 0.85rem !important; }
+
+        /* Sidebar en móvil: menos padding */
+        [data-testid="stSidebar"] > div:first-child {
+            padding: 0.5rem 0.8rem;
+        }
+
+        /* Ocultar texto largo en tooltips en móvil */
+        .text-muted {
+            font-size: 0.75rem;
+        }
+
+        /* Alertas compactas */
+        [data-testid="stAlert"] {
+            padding: 0.6rem 0.8rem !important;
+            font-size: 0.85rem !important;
+        }
+    }
+
+    /* ===== RESPONSIVE — MÓVIL PEQUEÑO (≤480px) ===== */
+    @media (max-width: 480px) {
+        .block-container {
+            padding: 0.3rem 0.5rem !important;
+        }
+
+        h1 { font-size: 1.5rem !important; }
+        h2 { font-size: 1.2rem !important; }
+
+        .bio-gradient-text {
+            font-size: 1.8rem !important;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 0.95rem !important;
+        }
+
+        .katex { font-size: 0.78rem !important; }
+    }
     </style>
     """,
     unsafe_allow_html=True,
