@@ -484,7 +484,52 @@ if st.session_state.dark_mode_active:
         background-color: rgba(255, 255, 255, 0.06) !important;
     }
 
-    /* Fix Inputs */
+    /* Fix Inputs y Selectbox (Dropdowns) */
+    .stApp div[data-baseweb="select"] > div,
+    .stApp div[data-baseweb="input"] > div {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #F8FAFC !important;
+    }
+    .stApp div[data-baseweb="select"] span,
+    .stApp div[data-baseweb="input"] input {
+        color: #F8FAFC !important;
+    }
+    .stApp div[data-baseweb="select"] svg {
+        fill: #94A3B8 !important;
+    }
+    
+    /* Popover/Lista del Selectbox (Aparece al final del body) */
+    /* 1. Limpiar todos los fondos blancos profundamente anidados */
+    div[data-baseweb="popover"] * {
+        background-color: transparent !important;
+        color: #F8FAFC !important;
+    }
+    
+    /* 2. Asignar el fondo oscuro al contenedor principal */
+    div[data-baseweb="popover"] > div {
+        background-color: #0F172A !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px !important;
+        padding: 4px !important;
+    }
+
+    /* 3. Estilos de hover para las opciones individuales */
+    div[data-baseweb="popover"] li[role="option"] {
+        border-radius: 4px !important;
+        margin-bottom: 2px !important;
+    }
+    div[data-baseweb="popover"] li[role="option"]:hover,
+    div[data-baseweb="popover"] li[role="option"][aria-selected="true"] {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    /* Asegurar que el hover aplique incluso si hay spans internos */
+    div[data-baseweb="popover"] li[role="option"]:hover *,
+    div[data-baseweb="popover"] li[role="option"][aria-selected="true"] * {
+        background-color: transparent !important;
+    }
+
+    /* Fix Sliders */
     div[data-testid="stSlider"] div {
         color: #F8FAFC !important;
     }
