@@ -110,7 +110,7 @@ st.markdown(
 
     /* ===== BOTONES DE NAVEGACIÓN ===== */
     /* Botones inactivos (Secondary por defecto) */
-    div[data-testid="stSidebar"] div.stButton > button {
+    [data-testid="stSidebar"] div.stButton > button {
         width: 100%;
         border: 1px solid rgba(76, 175, 80, 0.3) !important;
         border-radius: 12px !important;
@@ -124,14 +124,14 @@ st.markdown(
         color: inherit;
     }
 
-    div[data-testid="stSidebar"] div.stButton > button:hover {
+    [data-testid="stSidebar"] div.stButton > button:hover {
         border-color: var(--bio-primary) !important;
         transform: translateX(4px) !important;
     }
 
     /* Botón activo (Primary override) */
-    div[data-testid="stSidebar"] div.stButton > button[kind="primary"],
-    div[data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {
+    [data-testid="stSidebar"] div.stButton > button[kind="primary"],
+    [data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {
         background: linear-gradient(135deg, var(--bio-primary), var(--bio-primary-dark)) !important;
         background-color: transparent !important;
         color: white !important;
@@ -435,34 +435,36 @@ if st.session_state.dark_mode_active:
     }
 
     /* Botones inactivos (Secondary por defecto) */
-    .stApp div[data-testid="stSidebar"] div.stButton > button {
-        background: rgba(255, 255, 255, 0.05) !important;
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    .stApp [data-testid="stSidebar"] div.stButton > button.e7msn5c2 *,
+    .stApp [data-testid="stSidebar"] div.stButton > button.st-emotion-cache-gmnumv * {
+        background-color: transparent !important;
+        color: #F8FAFC !important;
     }
-    .stApp div[data-testid="stSidebar"] div.stButton > button p {
-        color: #94A3B8 !important;
+    .stApp [data-testid="stSidebar"] div.stButton > button.e7msn5c2,
+    .stApp [data-testid="stSidebar"] div.stButton > button.st-emotion-cache-gmnumv {
+        background: #1E293B !important;
+        background-color: #1E293B !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
     }
-    .stApp div[data-testid="stSidebar"] div.stButton > button:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
-        background-color: rgba(255, 255, 255, 0.1) !important;
+    .stApp [data-testid="stSidebar"] div.stButton > button.e7msn5c2:hover,
+    .stApp [data-testid="stSidebar"] div.stButton > button.st-emotion-cache-gmnumv:hover {
+        background: #334155 !important;
+        background-color: #334155 !important;
         border-color: #10B981 !important;
         transform: none !important;
     }
-    .stApp div[data-testid="stSidebar"] div.stButton > button:hover p {
-        color: #F8FAFC !important;
-    }
 
     /* Botones Sidebar Override (Primary activo) */
-    .stApp div[data-testid="stSidebar"] div.stButton > button[kind="primary"],
-    .stApp div[data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {
+    .stApp [data-testid="stSidebar"] div.stButton > button.e7msn5c1,
+    .stApp [data-testid="stSidebar"] div.stButton > button.st-emotion-cache-14vfvr3 {
         background: linear-gradient(135deg, #10B981, #0EA5E9) !important;
         background-color: transparent !important;
         border: none !important;
         box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
     }
-    .stApp div[data-testid="stSidebar"] div.stButton > button[kind="primary"] p,
-    .stApp div[data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] p {
+    .stApp [data-testid="stSidebar"] div.stButton > button.e7msn5c1 *,
+    .stApp [data-testid="stSidebar"] div.stButton > button.st-emotion-cache-14vfvr3 * {
+        background-color: transparent !important;
         color: #FFFFFF !important;
     }
     
