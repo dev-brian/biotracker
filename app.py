@@ -14,7 +14,7 @@ import streamlit as st
 # ============================================================================
 st.set_page_config(
     page_title="BioTracker — Modelado Farmacocinético",
-    page_icon="🧬",
+    page_icon=":material/health_and_safety:",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -25,57 +25,123 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* ===== TIPOGRAFÍA ===== */
+    /* ===== TIPOGRAFÍA E ICONOS ===== */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none !important;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
 
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
 
+    /* ===== TABLAS ===== */
+    [data-testid="stMarkdownContainer"] table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    [data-testid="stMarkdownContainer"] th {
+        text-align: center !important;
+    }
+    
+    [data-testid="stMarkdownContainer"] td {
+        text-align: center !important;
+    }
+
     /* ===== VARIABLES DE COLOR (funcionan en ambos modos) ===== */
     :root {
-        --bio-primary: #7c3aed;
-        --bio-primary-light: #a78bfa;
-        --bio-primary-dark: #5b21b6;
-        --bio-accent: #4ecdc4;
-        --bio-warm: #f59e0b;
-        --bio-danger: #ef4444;
+        --bio-primary: #4CAF50;
+        --bio-primary-light: #81C784;
+        --bio-primary-dark: #388E3C;
+        --bio-accent: #2196F3;
+        --bio-warm: #FF9800;
+        --bio-danger: #F44336;
     }
 
     /* ===== SIDEBAR ===== */
     [data-testid="stSidebar"] {
-        border-right: 1px solid rgba(124, 58, 237, 0.2);
+        border-right: 1px solid rgba(76, 175, 80, 0.2);
+    }
+    
+    /* ===== BOTÓN DE COLAPSO (Sidebar) ===== */
+    [data-testid="collapsedControl"] {
+        color: var(--bio-primary) !important;
+        background-color: rgba(76, 175, 80, 0.1) !important;
+        border-radius: 50% !important;
+        transition: all 0.3s ease;
+        padding: 0.2rem !important;
+    }
+    
+    [data-testid="collapsedControl"]:hover {
+        background-color: var(--bio-primary) !important;
+        color: white !important;
+    }
+    
+    /* Reemplazar el icono SVG nativo por un Material Symbol usando pseudo-elemento */
+    [data-testid="collapsedControl"] svg {
+        display: none !important;
+    }
+    
+    [data-testid="collapsedControl"]::after {
+        content: "menu_open";
+        font-family: 'Material Symbols Rounded';
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    [data-testid="collapsedControl"][aria-expanded="false"]::after {
+        content: "menu";
     }
 
     /* ===== BOTONES DE NAVEGACIÓN ===== */
-    div[data-testid="stSidebar"] .nav-btn-container .stButton > button {
+    /* Botones inactivos (Secondary por defecto) */
+    div[data-testid="stSidebar"] div.stButton > button {
         width: 100%;
-        border: 1px solid rgba(124, 58, 237, 0.3);
-        border-radius: 12px;
-        padding: 0.7rem 1rem;
-        font-weight: 500;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        text-align: left;
-        margin-bottom: 4px;
+        border: 1px solid rgba(76, 175, 80, 0.3) !important;
+        border-radius: 12px !important;
+        padding: 0.7rem 1rem !important;
+        font-weight: 500 !important;
+        font-size: 0.95rem !important;
+        transition: all 0.2s ease !important;
+        text-align: left !important;
+        margin-bottom: 4px !important;
+        background-color: transparent !important;
+        color: inherit;
     }
 
-    div[data-testid="stSidebar"] .nav-btn-container .stButton > button:hover {
-        border-color: var(--bio-primary);
-        transform: translateX(4px);
-    }
-
-    /* Botón activo */
-    div[data-testid="stSidebar"] .nav-btn-active .stButton > button {
-        background: linear-gradient(135deg, var(--bio-primary), var(--bio-primary-dark)) !important;
-        color: white !important;
+    div[data-testid="stSidebar"] div.stButton > button:hover {
         border-color: var(--bio-primary) !important;
-        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        transform: translateX(4px) !important;
+    }
+
+    /* Botón activo (Primary override) */
+    div[data-testid="stSidebar"] div.stButton > button[kind="primary"],
+    div[data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, var(--bio-primary), var(--bio-primary-dark)) !important;
+        background-color: transparent !important;
+        color: white !important;
+        border: 1px solid var(--bio-primary) !important;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important;
     }
 
     /* ===== MÉTRICAS ===== */
     [data-testid="stMetric"] {
-        border: 1px solid rgba(124, 58, 237, 0.15);
+        border: 1px solid rgba(76, 175, 80, 0.15);
         border-radius: 12px;
         padding: 1rem;
     }
@@ -83,13 +149,13 @@ st.markdown(
     /* Dark mode: fondo oscuro para métricas */
     @media (prefers-color-scheme: dark) {
         [data-testid="stMetric"] {
-            background: rgba(124, 58, 237, 0.05);
+            background: rgba(76, 175, 80, 0.05);
         }
     }
 
     /* ===== GRADIENT TEXT UTILITY ===== */
     .bio-gradient-text {
-        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 50%, #4ecdc4 100%);
+        background: linear-gradient(135deg, #4CAF50 0%, #81C784 50%, #2196F3 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -97,36 +163,23 @@ st.markdown(
 
     /* ===== CARDS ===== */
     .bio-card {
-        border: 1px solid rgba(124, 58, 237, 0.2);
+        border: 1px solid rgba(76, 175, 80, 0.2);
         border-radius: 16px;
         padding: 1.5rem;
         transition: all 0.3s ease;
         height: 100%;
+        background-color: var(--secondary-background-color);
     }
 
     .bio-card:hover {
         border-color: var(--bio-primary);
-        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
         transform: translateY(-2px);
-    }
-
-    /* Dark mode cards */
-    @media (prefers-color-scheme: dark) {
-        .bio-card {
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
-        }
-    }
-
-    /* Light mode cards */
-    @media (prefers-color-scheme: light) {
-        .bio-card {
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.03), rgba(78, 205, 196, 0.03));
-        }
     }
 
     /* ===== PRO PANEL ===== */
     .pro-panel {
-        border: 1px solid rgba(124, 58, 237, 0.3);
+        border: 1px solid rgba(76, 175, 80, 0.3);
         border-radius: 12px;
         padding: 1.5rem;
         margin: 1rem 0;
@@ -134,13 +187,13 @@ st.markdown(
 
     @media (prefers-color-scheme: dark) {
         .pro-panel {
-            background: rgba(124, 58, 237, 0.05);
+            background: rgba(76, 175, 80, 0.05);
         }
     }
 
     @media (prefers-color-scheme: light) {
         .pro-panel {
-            background: rgba(124, 58, 237, 0.02);
+            background: rgba(76, 175, 80, 0.02);
         }
     }
 
@@ -319,16 +372,124 @@ from views import home, caffeine_view, creatine_view
 st.sidebar.markdown(
     """
     <div style="text-align: center; padding: 1rem 0 0.5rem 0;">
-        <span style="font-size: 2.2rem;">🧬</span><br>
+        <br>
         <span style="
             font-size: 1.5rem;
             font-weight: 700;
-        " class="bio-gradient-text">BioTracker</span>
+        " class="bio-gradient-text"><span class="material-symbols-rounded" style="vertical-align: middle;">science</span> BioTracker</span>
         <p style="font-size: 0.75rem; opacity: 0.5; margin-top: 2px;">Modelado Farmacocinético</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
+st.sidebar.markdown("---")
+
+if "dark_mode_active" not in st.session_state:
+    st.session_state.dark_mode_active = False
+
+st.session_state.dark_mode_active = st.sidebar.toggle("🌙 Modo Oscuro (Glass)", value=st.session_state.dark_mode_active)
+
+if st.session_state.dark_mode_active:
+    st.markdown("""
+    <style>
+    /* DEEP SPACE BACKGROUND */
+    [data-testid="stAppViewContainer"], .stApp {
+        background-color: #0F172A !important;
+    }
+    [data-testid="stHeader"] {
+        background-color: transparent !important;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #0B1120 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    
+    /* TEXT COLORS */
+    html, body, p, span, h1, h2, h3, h4, h5, h6, label, [class*="css"], .katex {
+        color: #F8FAFC !important;
+    }
+    .text-muted, p.text-muted, [data-testid="stSidebar"] p {
+        color: #94A3B8 !important;
+    }
+    
+    /* GRADIENT PRIMARIO (Vitalidad) */
+    .bio-gradient-text {
+        background: linear-gradient(135deg, #10B981, #0EA5E9) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+    
+    /* GLASSMORFISMO (Tarjetas y Contenedores) */
+    .bio-card, [data-testid="stMetric"], .pro-panel, [data-testid="stExpander"] > details {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 16px !important;
+    }
+    
+    [data-testid="stExpander"] details summary {
+        background-color: transparent !important;
+    }
+
+    /* Botones inactivos (Secondary por defecto) */
+    .stApp div[data-testid="stSidebar"] div.stButton > button {
+        background: rgba(255, 255, 255, 0.05) !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .stApp div[data-testid="stSidebar"] div.stButton > button p {
+        color: #94A3B8 !important;
+    }
+    .stApp div[data-testid="stSidebar"] div.stButton > button:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: #10B981 !important;
+        transform: none !important;
+    }
+    .stApp div[data-testid="stSidebar"] div.stButton > button:hover p {
+        color: #F8FAFC !important;
+    }
+
+    /* Botones Sidebar Override (Primary activo) */
+    .stApp div[data-testid="stSidebar"] div.stButton > button[kind="primary"],
+    .stApp div[data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, #10B981, #0EA5E9) !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+    }
+    .stApp div[data-testid="stSidebar"] div.stButton > button[kind="primary"] p,
+    .stApp div[data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] p {
+        color: #FFFFFF !important;
+    }
+    
+    /* Fix Tablas */
+    [data-testid="stMarkdownContainer"] table, [data-testid="stTable"] table {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+        border-collapse: collapse !important;
+    }
+    [data-testid="stMarkdownContainer"] table th, 
+    [data-testid="stMarkdownContainer"] table td,
+    [data-testid="stTable"] table th,
+    [data-testid="stTable"] table td {
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #F8FAFC !important;
+        padding: 0.75rem !important;
+    }
+    [data-testid="stMarkdownContainer"] table th,
+    [data-testid="stTable"] table th {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    /* Fix Inputs */
+    div[data-testid="stSlider"] div {
+        color: #F8FAFC !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 
@@ -342,19 +503,17 @@ def cambiar_pagina(pagina):
 
 # Renderizar botones con estilo activo
 paginas = {
-    "inicio": {"label": "🏠  Inicio", "icon": "🏠"},
-    "cafeina": {"label": "☕  Cafeína", "icon": "☕"},
-    "creatina": {"label": "💪  Creatina", "icon": "💪"},
+    "inicio": {"label": ":material/home:  Inicio", "icon": ":material/home:"},
+    "cafeina": {"label": ":material/local_cafe:  Cafeína", "icon": ":material/local_cafe:"},
+    "creatina": {"label": ":material/fitness_center:  Creatina", "icon": ":material/fitness_center:"},
 }
 
 for key, info in paginas.items():
     is_active = st.session_state.pagina_actual == key
-    css_class = "nav-btn-active" if is_active else "nav-btn-container"
-    st.sidebar.markdown(f'<div class="{css_class}">', unsafe_allow_html=True)
-    if st.sidebar.button(info["label"], key=f"nav_{key}", use_container_width=True):
+    btn_type = "primary" if is_active else "secondary"
+    if st.sidebar.button(info["label"], key=f"nav_{key}", use_container_width=True, type=btn_type):
         cambiar_pagina(key)
         st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 

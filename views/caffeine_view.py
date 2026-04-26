@@ -23,7 +23,7 @@ from models.solvers import euler_method, calcular_errores
 def render():
     """Renderiza la página completa del módulo de cafeína."""
 
-    st.header("☕ Cafeína — ¿Cuánto dura el efecto?")
+    st.header(":material/local_cafe: Cafeína — ¿Cuánto dura el efecto?")
     st.markdown(
         "La cafeína es un **alcaloide del grupo de las xantinas** que actúa como "
         "**antagonista de los receptores de adenosina** en el cerebro. "
@@ -32,86 +32,98 @@ def render():
     )
 
     # ================================================================
-    # SIDEBAR — Método de ingreso
+    # PARÁMETROS INLINE (Expander principal)
     # ================================================================
-    st.sidebar.markdown("### ☕ Tu consumo")
+    with st.expander(":material/settings: Ajuste de Parámetros Biométricos", expanded=True):
+        col_method, col_dose, col_weight = st.columns([1.5, 1, 1])
+        
+        with col_method:
+            metodo = st.radio(
+                "Método de ingreso",
+                [":material/edit: Manual", ":material/menu_book: Catálogo de Productos"],
+                help="Manual: ingresa la dosis libremente. Catálogo: elige un producto real y usa su dosis."
+            )
 
-    metodo = st.sidebar.radio(
-        "Método de ingreso",
-        ["📝 Manual", "📖 Catálogo de Productos"],
-        help="Manual: ingresa la dosis libremente. Catálogo: elige un producto real y usa su dosis."
-    )
+        # ------ Método: Catálogo de Productos ------
+        if metodo == ":material/menu_book: Catálogo de Productos":
+            col_cat, col_prod = st.columns(2)
+            with col_cat:
+                tipo_absorcion = st.selectbox(
+                    "Tipo de absorción",
+                    list(caffeine_data.CATEGORIAS.keys()),
+                    help="Natural: café, té, chocolate · Sintética: pastillas, pre-workouts · Lenta: liberación sostenida"
+                )
+                st.caption(caffeine_data.CATEGORIAS[tipo_absorcion]["descripcion"])
 
-    # ------ Método: Catálogo de Productos ------
-    if metodo == "📖 Catálogo de Productos":
-        tipo_absorcion = st.sidebar.selectbox(
-            "Tipo de absorción",
-            list(caffeine_data.CATEGORIAS.keys()),
-            help="🌿 Natural: café, té, chocolate · ⚡ Sintética: pastillas, pre-workouts · 🕐 Lenta: liberación sostenida"
-        )
+            with col_prod:
+                productos_cat = caffeine_data.obtener_nombres_por_categoria(tipo_absorcion)
+                producto_nombre = st.selectbox("Producto", productos_cat)
 
-        st.sidebar.caption(caffeine_data.CATEGORIAS[tipo_absorcion]["descripcion"])
+            producto = caffeine_data.obtener_producto(producto_nombre)
 
-        productos_cat = caffeine_data.obtener_nombres_por_categoria(tipo_absorcion)
-        producto_nombre = st.sidebar.selectbox("Producto", productos_cat)
+            with col_dose:
+                # Slider acotado al rango del producto
+                dosis = st.slider(
+                    f"Dosis ({producto['mg_min']}-{producto['mg_max']} mg)",
+                    min_value=producto["mg_min"],
+                    max_value=max(producto["mg_max"], producto["mg_min"] + 1),
+                    value=int(caffeine_data.dosis_promedio(producto)),
+                    step=5,
+                    help=f"Rango típico para {producto['nombre']}. Dosis recomendada: {producto['dosis_recomendada']}"
+                )
 
-        producto = caffeine_data.obtener_producto(producto_nombre)
+            # Factor de absorción del producto
+            ka_base = caffeine.KA_DEFAULT * producto["ka_factor"]
 
-        # Slider acotado al rango del producto
-        dosis = st.sidebar.slider(
-            f"Dosis ({producto['mg_min']}-{producto['mg_max']} mg)",
-            min_value=producto["mg_min"],
-            max_value=max(producto["mg_max"], producto["mg_min"] + 1),
-            value=int(caffeine_data.dosis_promedio(producto)),
-            step=5,
-            help=f"Rango típico para {producto['nombre']}. Dosis recomendada: {producto['dosis_recomendada']}"
-        )
+        # ------ Método: Manual ------
+        else:
+            producto = None
+            with col_dose:
+                dosis = st.slider(
+                    "¿Cuánta cafeína consumiste? (mg)",
+                    min_value=50, max_value=400, value=200, step=25,
+                    help="Café filtrado: ~95 mg · Espresso: ~63 mg · Energy drink: ~80-160 mg · Pastilla: ~200 mg"
+                )
+            ka_base = caffeine.KA_DEFAULT
 
-        # Factor de absorción del producto
-        ka_base = caffeine.KA_DEFAULT * producto["ka_factor"]
+        with col_weight:
+            peso = st.slider(
+                "Tu peso corporal (kg)",
+                min_value=40, max_value=120, value=70, step=5,
+                help="Tu peso afecta qué tan concentrada queda la cafeína en tu sangre."
+            )
 
-    # ------ Método: Manual ------
-    else:
-        producto = None
-        dosis = st.sidebar.slider(
-            "¿Cuánta cafeína consumiste? (mg)",
-            min_value=50, max_value=400, value=200, step=25,
-            help="☕ Café filtrado: ~95 mg · ☕ Espresso: ~63 mg · 🥤 Energy drink: ~80-160 mg · 💊 Pastilla: ~200 mg"
-        )
-        ka_base = caffeine.KA_DEFAULT
+        # Parámetros avanzados (colapsados por defecto)
+        with st.expander(":material/tune: Parámetros avanzados"):
+            col_adv1, col_adv2, col_adv3, col_adv4 = st.columns(4)
+            with col_adv1:
+                ka = st.slider(
+                    "Velocidad de absorción (k_a)",
+                    min_value=0.5, max_value=10.0, value=float(round(ka_base, 2)), step=0.1,
+                    help="Qué tan rápido pasa la cafeína del estómago a la sangre. Mayor = más rápido. "
+                         "Se ajusta automáticamente al seleccionar un producto."
+                )
 
-    peso = st.sidebar.slider(
-        "Tu peso corporal (kg)",
-        min_value=40, max_value=120, value=70, step=5,
-        help="Tu peso afecta qué tan concentrada queda la cafeína en tu sangre."
-    )
+            with col_adv2:
+                ke = st.slider(
+                    "Velocidad de eliminación (k_e)",
+                    min_value=0.05, max_value=0.30, value=caffeine.KE_DEFAULT, step=0.001,
+                    format="%.3f",
+                    help="Qué tan rápido tu hígado procesa la cafeína. Varía por genética."
+                )
 
-    # Parámetros avanzados (colapsados por defecto)
-    with st.sidebar.expander("⚙️ Parámetros avanzados"):
-        ka = st.slider(
-            "Velocidad de absorción (k_a)",
-            min_value=0.5, max_value=10.0, value=float(round(ka_base, 2)), step=0.1,
-            help="Qué tan rápido pasa la cafeína del estómago a la sangre. Mayor = más rápido. "
-                 "Se ajusta automáticamente al seleccionar un producto."
-        )
+            with col_adv3:
+                dt = st.slider(
+                    "Precisión de Euler (dt)",
+                    min_value=0.01, max_value=1.0, value=0.1, step=0.01,
+                    help="Tamaño del paso del método numérico. Menor = más preciso."
+                )
 
-        ke = st.slider(
-            "Velocidad de eliminación (k_e)",
-            min_value=0.05, max_value=0.30, value=caffeine.KE_DEFAULT, step=0.001,
-            format="%.3f",
-            help="Qué tan rápido tu hígado procesa la cafeína. Varía por genética."
-        )
-
-        dt = st.slider(
-            "Precisión de Euler (dt)",
-            min_value=0.01, max_value=1.0, value=0.1, step=0.01,
-            help="Tamaño del paso del método numérico. Menor = más preciso."
-        )
-
-        duracion = st.slider(
-            "Horas a simular",
-            min_value=6, max_value=48, value=24, step=1
-        )
+            with col_adv4:
+                duracion = st.slider(
+                    "Horas a simular",
+                    min_value=6, max_value=48, value=24, step=1
+                )
 
     # Usar defaults si no se abrió el expander
     if 'ka' not in dir():
@@ -131,41 +143,41 @@ def render():
     if producto:
         cat_color = caffeine_data.CATEGORIAS[tipo_absorcion]["color"]
 
+        st.markdown(f'<div class="bio-card" style="border-left: 4px solid {cat_color}; margin-bottom: 1.5rem;">', unsafe_allow_html=True)
+        st.markdown(f"### {producto['nombre']}")
         st.markdown(
             f"""
-            <div class="bio-card" style="border-left: 4px solid {cat_color}; margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <h3 style="margin: 0 0 0.3rem 0;">{producto['nombre']}</h3>
-                        <span style="
-                            background: {cat_color}22;
-                            color: {cat_color};
-                            padding: 2px 10px;
-                            border-radius: 12px;
-                            font-size: 0.8rem;
-                            font-weight: 600;
-                        ">{tipo_absorcion}</span>
-                        <p style="margin-top: 0.8rem; opacity: 0.8; font-size: 0.9rem;">
-                            <strong>📊 Cafeína:</strong> {producto['mg_min']}-{producto['mg_max']} mg por porción<br>
-                            <strong>💊 Dosis:</strong> {producto['dosis_recomendada']}<br>
-                            <strong>💰 Costo:</strong> {producto['costo']}
-                        </p>
-                    </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <p style="font-size: 0.85rem; opacity: 0.8;">
-                            <strong>✅ Indicado para:</strong> {producto['indicado']}<br>
-                            <strong>⚠️ No recomendado:</strong> {producto['contraindicado']}<br>
-                            <strong>🏅 Deportes:</strong> {', '.join(producto['deportes'])}
-                        </p>
-                        <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 0.5rem;">
-                            <strong>Marcas:</strong> {', '.join(producto['marcas'][:4])}{'...' if len(producto['marcas']) > 4 else ''}
-                        </p>
-                    </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div style="flex: 1; min-width: 200px;">
+                    <span style="
+                        background: {cat_color}22;
+                        color: {cat_color};
+                        padding: 2px 10px;
+                        border-radius: 12px;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                    ">{tipo_absorcion}</span>
+                    <p style="margin-top: 0.8rem; opacity: 0.8; font-size: 0.9rem;">
+                        <strong>:material/bar_chart: Cafeína:</strong> {producto['mg_min']}-{producto['mg_max']} mg por porción<br>
+                        <strong>:material/medication: Dosis:</strong> {producto['dosis_recomendada']}<br>
+                        <strong>:material/attach_money: Costo:</strong> {producto['costo']}
+                    </p>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <p style="font-size: 0.85rem; opacity: 0.8;">
+                        <strong>:material/check_circle: Indicado para:</strong> {producto['indicado']}<br>
+                        <strong>:material/warning: No recomendado:</strong> {producto['contraindicado']}<br>
+                        <strong>:material/emoji_events: Deportes:</strong> {', '.join(producto['deportes'])}
+                    </p>
+                    <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 0.5rem;">
+                        <strong>Marcas:</strong> {', '.join(producto['marcas'][:4])}{'...' if len(producto['marcas']) > 4 else ''}
+                    </p>
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ================================================================
     # CÁLCULOS
@@ -190,31 +202,31 @@ def render():
     # RESULTADOS — ¿Qué significa para ti?
     # ================================================================
     st.markdown("---")
-    st.subheader("📊 Tu curva de cafeína")
+    st.subheader(":material/show_chart: Tu curva de cafeína")
 
     # Métricas principales (lenguaje humano)
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1:
         horas_pico = int(t_max)
         minutos_pico = int((t_max - horas_pico) * 60)
-        st.metric("⚡ Pico de energía", f"{horas_pico}h {minutos_pico}min")
+        st.metric(":material/bolt: Pico de energía", f"{horas_pico}h {minutos_pico}min")
     with col_m2:
-        st.metric("📈 Concentración máxima", f"{c_max:.2f} mg/L")
+        st.metric(":material/trending_up: Concentración máxima", f"{c_max:.2f} mg/L")
     with col_m3:
-        st.metric("⏳ Vida media", f"{vida_media:.1f} horas")
+        st.metric(":material/hourglass_empty: Vida media", f"{vida_media:.1f} horas")
     with col_m4:
         if bajon:
             horas_bajon = int(bajon['t_bajon'])
             minutos_bajon = int((bajon['t_bajon'] - horas_bajon) * 60)
-            st.metric("💤 Bajón de energía", f"{horas_bajon}h {minutos_bajon}min")
+            st.metric(":material/bedtime: Bajón de energía", f"{horas_bajon}h {minutos_bajon}min")
         else:
-            st.metric("💤 Bajón de energía", "N/A")
+            st.metric(":material/bedtime: Bajón de energía", "N/A")
 
     # Interpretación en lenguaje natural
     if bajon:
         producto_texto = f" de **{producto['nombre']}**" if producto else ""
         st.info(
-            f"☕ Con **{dosis} mg** de cafeína{producto_texto}, sentirás el **máximo efecto a los "
+            f":material/local_cafe: Con **{dosis} mg** de cafeína{producto_texto}, sentirás el **máximo efecto a los "
             f"{horas_pico}h {minutos_pico}min**. El efecto disminuirá al 50% aproximadamente "
             f"a las **{horas_bajon}h {minutos_bajon}min** después de consumirla. "
             f"Tu cuerpo tarda unas **{vida_media:.0f} horas** en eliminar la mitad de la cafeína."
@@ -227,6 +239,12 @@ def render():
     if producto:
         titulo_grafica = f"{producto['nombre']} ({dosis} mg) — {peso} kg"
 
+    is_dark = st.session_state.get('dark_mode_active', False)
+    color_linea = "#10B981" if is_dark else "#7c3aed"
+    color_euler = "#0EA5E9" if is_dark else "#f59e0b"
+    color_pico = "#0EA5E9" if is_dark else "#4ecdc4"
+    color_bajon = "#F43F5E" if is_dark else "#ef4444"
+
     fig = go.Figure()
 
     # Solución analítica (línea continua)
@@ -234,7 +252,7 @@ def render():
         x=t_analitico, y=c_analitico,
         mode='lines',
         name='Concentración real (solución exacta)',
-        line=dict(color='#7c3aed', width=3),
+        line=dict(color=color_linea, width=3),
         hovertemplate='<b>Hora %{x:.1f}</b><br>Concentración: %{y:.3f} mg/L<extra></extra>'
     ))
 
@@ -243,52 +261,51 @@ def render():
         x=t_euler, y=c_euler,
         mode='markers',
         name=f'Aproximación numérica (Euler, dt={dt})',
-        marker=dict(color='#f59e0b', size=4, symbol='circle', opacity=0.7),
+        marker=dict(color=color_euler, size=4, symbol='circle', opacity=0.7),
         hovertemplate='<b>Hora %{x:.1f}</b><br>Euler: %{y:.3f} mg/L<extra></extra>'
     ))
 
     # Línea del pico
     fig.add_vline(
-        x=t_max, line_dash="dot", line_color="#4ecdc4",
-        annotation_text=f"⚡ Pico: {t_max:.1f}h",
+        x=t_max, line_dash="dot", line_color=color_pico,
+        annotation_text=f"Pico: {t_max:.1f}h",
         annotation_position="top right",
-        annotation_font=dict(color="#4ecdc4", size=12)
+        annotation_font=dict(color=color_pico, size=12)
     )
 
     # Línea del bajón (si existe)
     if bajon:
         fig.add_vline(
-            x=bajon['t_bajon'], line_dash="dash", line_color="#ef4444",
-            annotation_text=f"💤 Bajón: {bajon['t_bajon']:.1f}h",
+            x=bajon['t_bajon'], line_dash="dash", line_color=color_bajon,
+            annotation_text=f"Bajón: {bajon['t_bajon']:.1f}h",
             annotation_position="top left",
-            annotation_font=dict(color="#ef4444", size=12)
+            annotation_font=dict(color=color_bajon, size=12)
         )
         fig.add_hline(
-            y=bajon['umbral'], line_dash="dot", line_color="#ef4444",
+            y=bajon['umbral'], line_dash="dot", line_color=color_bajon,
             opacity=0.3,
-            annotation_text="50% del pico",
+            annotation_text="20% del pico",
             annotation_position="bottom right",
-            annotation_font=dict(color="#ef4444", size=10)
+            annotation_font=dict(color=color_bajon, size=10)
         )
 
-    fig.update_layout(
-        title=dict(
-            text=titulo_grafica,
-            font=dict(size=15)
-        ),
-        xaxis_title="Tiempo después de consumir (horas)",
+    layout_kwargs = dict(
+        title=titulo_grafica,
+        xaxis_title="Tiempo (horas)",
         yaxis_title="Concentración en sangre (mg/L)",
-        template="plotly_dark",
-        height=480,
-        legend=dict(
-            yanchor="top", y=0.99,
-            xanchor="right", x=0.99,
-            bgcolor="rgba(0,0,0,0.5)",
-            font=dict(size=11)
-        ),
         hovermode="x unified",
-        margin=dict(t=50, b=50),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        margin=dict(l=40, r=40, t=60, b=40)
     )
+    
+    if is_dark:
+        layout_kwargs.update(dict(
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#94A3B8")
+        ))
+        
+    fig.update_layout(**layout_kwargs)
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -297,7 +314,7 @@ def render():
     # ================================================================
     st.markdown("---")
 
-    with st.expander("🔬 **Modo Pro** — Proceso matemático completo (Laplace, EDO, errores)", expanded=False):
+    with st.expander(":material/science: **Modo Pro** — Proceso matemático completo (Laplace, EDO, errores)", expanded=False):
 
         st.markdown(
             """
@@ -313,7 +330,7 @@ def render():
         )
 
         # --- Modelado matemático ---
-        st.markdown("#### 📐 Sistema de Ecuaciones Diferenciales")
+        st.markdown("#### :material/architecture: Sistema de Ecuaciones Diferenciales")
 
         col_eq1, col_eq2 = st.columns(2)
         with col_eq1:
@@ -330,14 +347,14 @@ def render():
 
         if producto:
             st.caption(
-                f"💡 **Nota:** El valor de k_a fue ajustado automáticamente a {ka:.2f} "
+                f":material/lightbulb: **Nota:** El valor de k_a fue ajustado automáticamente a {ka:.2f} "
                 f"basado en la velocidad de absorción de **{producto['nombre']}** "
                 f"(factor ×{producto['ka_factor']})."
             )
 
         # --- Resolución por Laplace ---
         st.markdown("---")
-        st.markdown("#### 🔄 Resolución por Transformada de Laplace")
+        st.markdown("#### :material/sync: Resolución por Transformada de Laplace")
 
         with st.spinner("Calculando resolución simbólica con SymPy..."):
             try:
@@ -359,7 +376,7 @@ def render():
                 st.markdown("**Paso 4 — Transformada Inversa** ($\\mathcal{L}^{-1}$):")
                 st.latex(r"C(t) = " + laplace_result['solucion_latex'])
 
-                st.success("✅ **Ecuación de Bateman** — Solución analítica exacta.")
+                st.success(":material/check_circle: **Ecuación de Bateman** — Solución analítica exacta.")
 
             except Exception as e:
                 st.warning(f"Error en resolución simbólica: {e}")
@@ -370,7 +387,7 @@ def render():
 
         # --- Tabla de errores numéricos ---
         st.markdown("---")
-        st.markdown("#### 📋 Error Numérico: Euler vs Solución Analítica")
+        st.markdown("#### :material/table_chart: Error Numérico: Euler vs Solución Analítica")
 
         errores = calcular_errores(c_euler, c_analitico_euler_pts)
 
@@ -392,20 +409,17 @@ def render():
             'Error Rel (%)': errores['error_porcentual'][::step_display],
         })
 
-        st.dataframe(
+        st.table(
             df_errores.style.format({
                 't (horas)': '{:.2f}',
                 'C_euler (mg/L)': '{:.6f}',
                 'C_analítica (mg/L)': '{:.6f}',
                 'Error Abs (mg/L)': '{:.6f}',
                 'Error Rel (%)': '{:.4f}',
-            }),
-            use_container_width=True,
-            hide_index=True,
-            height=400,
+            }).hide(axis="index")
         )
 
         st.markdown(
-            "*💡 **Tip**: Reduce el valor de `dt` en los parámetros avanzados para ver "
+            "*:material/lightbulb: **Tip**: Reduce el valor de `dt` en los parámetros avanzados para ver "
             "cómo el error de Euler disminuye al usar pasos más pequeños.*"
         )

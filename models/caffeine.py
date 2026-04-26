@@ -137,7 +137,7 @@ def ode_func(t, C, D0, ka=KA_DEFAULT, ke=KE_DEFAULT, peso_kg=70.0):
 # DETECCIÓN DE "BAJÓN DE ENERGÍA"
 # ============================================================================
 
-def detectar_bajon(t_array, c_array, umbral_pct=0.50):
+def detectar_bajon(t_array, c_array, umbral_pct=0.20):
     """
     Detecta cuándo la concentración cae por debajo de un porcentaje del pico.
 

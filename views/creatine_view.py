@@ -19,7 +19,7 @@ from models.solvers import euler_method, calcular_errores
 def render():
     """Renderiza la página completa del módulo de creatina."""
 
-    st.header("💪 Creatina — ¿Cuántos días para ver resultados?")
+    st.header(":material/fitness_center: Creatina — ¿Cuántos días para ver resultados?")
     st.markdown(
         "La creatina **no da energía instantánea** como la cafeína. Funciona **acumulándose** "
         "en tus músculos día tras día, hasta que alcanzas la saturación máxima. "
@@ -27,56 +27,62 @@ def render():
     )
 
     # ================================================================
-    # SIDEBAR — Parámetros de entrada
+    # PARÁMETROS INLINE (Expander principal)
     # ================================================================
-    st.sidebar.markdown("### 💪 Tu suplementación")
+    with st.expander(":material/settings: Ajuste de Parámetros Biométricos", expanded=True):
+        col_fase, col_ingesta = st.columns([1.5, 1])
 
-    fase = st.sidebar.radio(
-        "¿Qué fase estás siguiendo?",
-        list(creatine.FASES.keys()),
-        help="🏃 Carga: saturación rápida (5-7 días). 🚶 Mantenimiento: sostener el nivel a largo plazo."
-    )
+        with col_fase:
+            fase = st.radio(
+                "¿Qué fase estás siguiendo?",
+                list(creatine.FASES.keys()),
+                horizontal=True,
+                help="Carga: saturación rápida (5-7 días). Mantenimiento: sostener el nivel a largo plazo."
+            )
+            st.caption(f":material/assignment: {creatine.FASES[fase]['descripcion']}")
 
-    st.sidebar.caption(f"📋 {creatine.FASES[fase]['descripcion']}")
+        ingesta_default = creatine.FASES[fase]['ingesta']
 
-    ingesta_default = creatine.FASES[fase]['ingesta']
-    ingesta = st.sidebar.slider(
-        "Gramos por día (g/día)",
-        min_value=1.0, max_value=25.0, value=ingesta_default, step=0.5,
-        help="Cantidad total de creatina que consumes diariamente (dieta + suplemento)."
-    )
+        with col_ingesta:
+            ingesta = st.slider(
+                "Gramos por día (g/día)",
+                min_value=1.0, max_value=25.0, value=ingesta_default, step=0.5,
+                help="Cantidad total de creatina que consumes diariamente (dieta + suplemento)."
+            )
 
-    # Parámetros avanzados (colapsados)
-    with st.sidebar.expander("⚙️ Parámetros avanzados"):
-        k = st.slider(
-            "Tasa de degradación (k)",
-            min_value=0.010, max_value=0.050, value=creatine.K_DEFAULT, step=0.001,
-            format="%.3f",
-            help="Tu cuerpo degrada ~1.7% de la creatina muscular cada día, convirtiéndola en creatinina."
-        )
-
-        S_max = st.slider(
-            "Capacidad máxima muscular (g)",
-            min_value=100.0, max_value=200.0, value=creatine.S_MAX_DEFAULT, step=5.0,
-            help="Depende de tu masa muscular. Más músculo = más capacidad de almacenar PCr."
-        )
-
-        S0_pct = st.slider(
-            "Saturación inicial (%)",
-            min_value=30, max_value=100, value=75, step=5,
-            help="Sin suplementación, normalmente tienes 60-80% de saturación."
-        )
-
-        duracion = st.slider(
-            "Días a simular",
-            min_value=7, max_value=90, value=30, step=1
-        )
-
-        dt = st.slider(
-            "Precisión de Euler (dt en días)",
-            min_value=0.1, max_value=2.0, value=0.5, step=0.1,
-            help="Tamaño del paso del método numérico."
-        )
+        # Parámetros avanzados (colapsados)
+        with st.expander(":material/tune: Parámetros avanzados"):
+            col_adv1, col_adv2, col_adv3, col_adv4, col_adv5 = st.columns(5)
+            with col_adv1:
+                k = st.slider(
+                    "Tasa de degradación (k)",
+                    min_value=0.010, max_value=0.050, value=creatine.K_DEFAULT, step=0.001,
+                    format="%.3f",
+                    help="Tu cuerpo degrada ~1.7% de la creatina muscular cada día, convirtiéndola en creatinina."
+                )
+            with col_adv2:
+                S_max = st.slider(
+                    "Capacidad máxima muscular (g)",
+                    min_value=100.0, max_value=200.0, value=creatine.S_MAX_DEFAULT, step=5.0,
+                    help="Depende de tu masa muscular. Más músculo = más capacidad de almacenar PCr."
+                )
+            with col_adv3:
+                S0_pct = st.slider(
+                    "Saturación inicial (%)",
+                    min_value=30, max_value=100, value=75, step=5,
+                    help="Sin suplementación, normalmente tienes 60-80% de saturación."
+                )
+            with col_adv4:
+                duracion = st.slider(
+                    "Días a simular",
+                    min_value=7, max_value=90, value=30, step=1
+                )
+            with col_adv5:
+                dt = st.slider(
+                    "Precisión de Euler (dt en días)",
+                    min_value=0.1, max_value=2.0, value=0.5, step=0.1,
+                    help="Tamaño del paso del método numérico."
+                )
 
     # Defaults si no se abrió expander
     if 'k' not in dir():
@@ -117,54 +123,59 @@ def render():
     # RESULTADOS — ¿Qué significa para ti?
     # ================================================================
     st.markdown("---")
-    st.subheader("📊 Tu curva de saturación")
+    st.subheader(":material/show_chart: Tu curva de saturación")
 
     # Métricas principales
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1:
-        st.metric("📦 Nivel inicial", f"{S0_pct}%")
+        st.metric(":material/inventory_2: Nivel inicial", f"{S0_pct}%")
     with col_m2:
         nivel_final = min(S_eq_pct, 100 * (S_eq / S_max))
-        st.metric("🎯 Nivel de equilibrio", f"{nivel_final:.0f}%")
+        st.metric(":material/track_changes: Nivel de equilibrio", f"{nivel_final:.0f}%")
     with col_m3:
         if dias_sat is not None and dias_sat <= duracion:
-            st.metric("📅 Días para 95%", f"{dias_sat:.0f} días")
+            st.metric(":material/calendar_today: Días para 95%", f"{dias_sat:.0f} días")
         else:
-            st.metric("📅 Días para 95%", "No alcanzable ⚠️")
+            st.metric(":material/calendar_today: Días para 95%", "No alcanzable")
     with col_m4:
-        st.metric("📉 Degradación diaria", f"{k*100:.1f}%")
+        st.metric(":material/trending_down: Degradación diaria", f"{k*100:.1f}%")
 
     # Interpretación en lenguaje natural
     if dias_sat is not None and dias_sat <= duracion:
         st.info(
-            f"💪 Con **{ingesta} g/día** ({fase.lower()}), tus músculos alcanzarán el "
+            f":material/fitness_center: Con **{ingesta} g/día** ({fase.lower()}), tus músculos alcanzarán el "
             f"**95% de saturación en ~{dias_sat:.0f} días**. Tu nivel de equilibrio final "
             f"será de **{S_eq:.0f} g** ({nivel_final:.0f}% de tu capacidad). "
             f"Tu cuerpo degrada un **{k*100:.1f}%** de la creatina almacenada cada día."
         )
     elif S_eq_pct > 100:
         st.info(
-            f"💪 Con **{ingesta} g/día**, superarás la capacidad máxima estimada. "
+            f":material/fitness_center: Con **{ingesta} g/día**, superarás la capacidad máxima estimada. "
             f"En la práctica, el cuerpo excreta el exceso por orina."
         )
     else:
         st.warning(
-            f"⚠️ Con **{ingesta} g/día**, tu nivel de equilibrio será de **{nivel_final:.0f}%**. "
+            f":material/warning: Con **{ingesta} g/día**, tu nivel de equilibrio será de **{nivel_final:.0f}%**. "
             f"Considera aumentar la dosis para alcanzar saturación completa."
         )
 
     # ================================================================
     # GRÁFICA PLOTLY
     # ================================================================
+    is_dark = st.session_state.get('dark_mode_active', False)
+    color_linea = "#10B981" if is_dark else "#4ecdc4"
+    color_euler = "#0EA5E9" if is_dark else "#f59e0b"
+    color_95 = "#F43F5E" if is_dark else "#a78bfa"
+    color_100 = "#0EA5E9" if is_dark else "#7c3aed"
 
     fig = go.Figure()
 
-    # Solución analítica
+    # Solución analítica (línea continua)
     fig.add_trace(go.Scatter(
         x=t_analitico, y=s_analitico_pct,
         mode='lines',
         name='Saturación real (solución exacta)',
-        line=dict(color='#4ecdc4', width=3),
+        line=dict(color=color_linea, width=3),
         hovertemplate='<b>Día %{x:.0f}</b><br>Saturación: %{y:.1f}%<extra></extra>'
     ))
 
@@ -173,54 +184,53 @@ def render():
         x=t_euler, y=s_euler_pct,
         mode='markers',
         name=f'Aproximación numérica (Euler, dt={dt})',
-        marker=dict(color='#f59e0b', size=5, symbol='circle', opacity=0.7),
+        marker=dict(color=color_euler, size=5, symbol='circle', opacity=0.7),
         hovertemplate='<b>Día %{x:.0f}</b><br>Euler: %{y:.1f}%<extra></extra>'
     ))
 
     # Línea de 95% saturación
     fig.add_hline(
-        y=95.0, line_dash="dot", line_color="#a78bfa",
+        y=95.0, line_dash="dot", line_color=color_95,
         annotation_text="95% saturación",
         annotation_position="bottom right",
-        annotation_font=dict(color="#a78bfa", size=11)
+        annotation_font=dict(color=color_95, size=11)
     )
 
     # Línea de 100% capacidad
     fig.add_hline(
-        y=100.0, line_dash="solid", line_color="#7c3aed",
+        y=100.0, line_dash="solid", line_color=color_100,
         opacity=0.4,
         annotation_text="100% capacidad",
         annotation_position="top right",
-        annotation_font=dict(color="#7c3aed", size=11)
+        annotation_font=dict(color=color_100, size=11)
     )
 
     # Anotación de día de saturación
     if dias_sat is not None and dias_sat <= duracion:
         fig.add_vline(
-            x=dias_sat, line_dash="dash", line_color="#4ecdc4",
-            annotation_text=f"📅 Día {dias_sat:.0f}",
+            x=dias_sat, line_dash="dash", line_color=color_linea,
+            annotation_text=f"Día {dias_sat:.0f}",
             annotation_position="top left",
-            annotation_font=dict(color="#4ecdc4", size=12)
+            annotation_font=dict(color=color_linea, size=12)
         )
 
-    fig.update_layout(
-        title=dict(
-            text=f"Saturación de Fosfocreatina — {fase}: {ingesta} g/día",
-            font=dict(size=15)
-        ),
+    layout_kwargs = dict(
+        title=f"Saturación de Fosfocreatina — {fase}: {ingesta} g/día",
         xaxis_title="Días de suplementación",
         yaxis_title="Saturación muscular (%)",
-        template="plotly_dark",
-        height=480,
-        legend=dict(
-            yanchor="bottom", y=0.01,
-            xanchor="right", x=0.99,
-            bgcolor="rgba(0,0,0,0.5)",
-            font=dict(size=11)
-        ),
         hovermode="x unified",
-        margin=dict(t=50, b=50),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        margin=dict(l=40, r=40, t=60, b=40)
     )
+    
+    if is_dark:
+        layout_kwargs.update(dict(
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#94A3B8")
+        ))
+        
+    fig.update_layout(**layout_kwargs)
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -229,7 +239,7 @@ def render():
     # ================================================================
     st.markdown("---")
 
-    with st.expander("🔬 **Modo Pro** — Proceso matemático completo (Laplace, EDO, errores)", expanded=False):
+    with st.expander(":material/science: **Modo Pro** — Proceso matemático completo (Laplace, EDO, errores)", expanded=False):
 
         st.markdown(
             """
@@ -245,7 +255,7 @@ def render():
         )
 
         # --- Modelado matemático ---
-        st.markdown("#### 📐 Ecuación Diferencial del Modelo")
+        st.markdown("#### :material/architecture: Ecuación Diferencial del Modelo")
 
         col_eq1, col_eq2 = st.columns(2)
         with col_eq1:
@@ -264,7 +274,7 @@ def render():
 
         # --- Resolución por Laplace ---
         st.markdown("---")
-        st.markdown("#### 🔄 Resolución por Transformada de Laplace")
+        st.markdown("#### :material/sync: Resolución por Transformada de Laplace")
 
         with st.spinner("Calculando resolución simbólica..."):
             try:
@@ -286,7 +296,7 @@ def render():
                 st.markdown("**Paso 4 — Transformada Inversa:**")
                 st.latex(r"S(t) = " + laplace_result['solucion_latex'])
 
-                st.success("✅ Solución analítica exacta obtenida por Laplace.")
+                st.success(":material/check_circle: Solución analítica exacta obtenida por Laplace.")
 
             except Exception as e:
                 st.warning(f"Error en resolución simbólica: {e}")
@@ -294,7 +304,7 @@ def render():
 
         # --- Tabla de errores ---
         st.markdown("---")
-        st.markdown("#### 📋 Error Numérico: Euler vs Analítica")
+        st.markdown("#### :material/table_chart: Error Numérico: Euler vs Analítica")
 
         errores = calcular_errores(s_euler, s_analitico_euler_pts)
 
@@ -317,7 +327,7 @@ def render():
             'Error Rel (%)': errores['error_porcentual'][::step_display],
         })
 
-        st.dataframe(
+        st.table(
             df_errores.style.format({
                 't (días)': '{:.1f}',
                 'S_euler (g)': '{:.2f}',
@@ -325,13 +335,10 @@ def render():
                 'Saturación (%)': '{:.1f}',
                 'Error Abs (g)': '{:.4f}',
                 'Error Rel (%)': '{:.4f}',
-            }),
-            use_container_width=True,
-            hide_index=True,
-            height=400,
+            }).hide(axis="index")
         )
 
         st.markdown(
-            "*💡 **Tip**: La creatina tiene cambios lentos (días), así que Euler es muy preciso "
+            "*:material/lightbulb: **Tip**: La creatina tiene cambios lentos (días), así que Euler es muy preciso "
             "incluso con pasos grandes. Compáralo con la cafeína donde el error es mayor.*"
         )

@@ -20,7 +20,7 @@ def render():
             <h1 style="
                 font-size: 3.5rem;
                 margin-bottom: 0.3rem;
-            "><span class="bio-gradient-text">🧬 BioTracker</span></h1>
+            "><span class="bio-gradient-text"><span class="material-symbols-rounded" style="vertical-align: middle;">science</span> BioTracker</span></h1>
             <p style="font-size: 1.4rem; opacity: 0.8; font-weight: 300;">
                 Entiende cómo tu cuerpo procesa lo que consumes
             </p>
@@ -39,7 +39,7 @@ def render():
     # ================================================================
     st.markdown(
         """
-        ### 🎯 El Problema
+        ### :material/target: El Problema
 
         Millones de personas consumen **cafeína** y **suplementos deportivos** a diario,
         pero pocas entienden **cuánto tiempo duran sus efectos**, **cuándo alcanzan su pico máximo**,
@@ -59,7 +59,7 @@ def render():
     # ================================================================
     # LA SOLUCIÓN
     # ================================================================
-    st.markdown("### 💡 Nuestra Solución")
+    st.markdown("### :material/lightbulb: Nuestra Solución")
 
     st.markdown(
         """
@@ -75,7 +75,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card">
-                <h3 style="margin-top: 0;">☕ Módulo Cafeína</h3>
+                <h3 style="margin-top: 0;"><span class="material-symbols-rounded" style="vertical-align: middle;">local_cafe</span> Módulo Cafeína</h3>
                 <p style="font-weight: 500; opacity: 0.9;">Efecto Agudo — Pico y Eliminación</p>
                 <p style="opacity: 0.7; font-size: 0.9rem;">
                     Visualiza cómo la cafeína se absorbe en tu cuerpo, alcanza su
@@ -84,7 +84,7 @@ def render():
                     <strong>hora exacta del bajón de energía</strong>.
                 </p>
                 <p class="text-muted" style="margin-top: 1rem;">
-                    ⏱️ Escala: horas · 📈 Curva tipo campana
+                    <span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1rem;">timer</span> Escala: horas · <span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1rem;">show_chart</span> Curva tipo campana
                 </p>
             </div>
             """,
@@ -95,7 +95,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card">
-                <h3 style="margin-top: 0;">💪 Módulo Creatina</h3>
+                <h3 style="margin-top: 0;"><span class="material-symbols-rounded" style="vertical-align: middle;">fitness_center</span> Módulo Creatina</h3>
                 <p style="font-weight: 500; opacity: 0.9;">Efecto Crónico — Saturación Progresiva</p>
                 <p style="opacity: 0.7; font-size: 0.9rem;">
                     Simula cómo tus músculos acumulan fosfocreatina día tras día.
@@ -103,7 +103,7 @@ def render():
                     vs la <strong>fase de mantenimiento</strong> (5g/día, resultados en ~4 semanas).
                 </p>
                 <p class="text-muted" style="margin-top: 1rem;">
-                    📅 Escala: días/semanas · 📈 Curva de saturación
+                    <span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1rem;">calendar_today</span> Escala: días/semanas · <span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1rem;">show_chart</span> Curva de saturación
                 </p>
             </div>
             """,
@@ -118,7 +118,7 @@ def render():
     st.markdown("---")
     st.markdown(
         """
-        ### 🔬 ¿Cómo funciona?
+        ### :material/science: ¿Cómo funciona?
 
         Cuando consumes una sustancia, tu cuerpo sigue un proceso de **3 etapas**:
         """
@@ -130,7 +130,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card" style="text-align: center;">
-                <span style="font-size: 2.5rem;">🫁</span>
+                <span class="material-symbols-rounded" style="font-size: 2.5rem; color: #4CAF50;">air</span>
                 <h4>1. Absorción</h4>
                 <p style="font-size: 0.85rem; opacity: 0.7;">
                     La sustancia pasa del estómago al torrente sanguíneo.
@@ -145,7 +145,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card" style="text-align: center;">
-                <span style="font-size: 2.5rem;">🩸</span>
+                <span class="material-symbols-rounded" style="font-size: 2.5rem; color: #F44336;">water_drop</span>
                 <h4>2. Distribución</h4>
                 <p style="font-size: 0.85rem; opacity: 0.7;">
                     La concentración en sangre sube hasta un pico máximo.
@@ -160,7 +160,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card" style="text-align: center;">
-                <span style="font-size: 2.5rem;">🫀</span>
+                <span class="material-symbols-rounded" style="font-size: 2.5rem; color: #2196F3;">monitor_heart</span>
                 <h4>3. Eliminación</h4>
                 <p style="font-size: 0.85rem; opacity: 0.7;">
                     El hígado metaboliza la sustancia y los riñones la excretan.
@@ -193,7 +193,7 @@ def render():
     # PARA QUIÉN ES
     # ================================================================
     st.markdown("---")
-    st.markdown("### 👥 ¿Para quién es BioTracker?")
+    st.markdown("### :material/group: ¿Para quién es BioTracker?")
 
     col_p1, col_p2, col_p3 = st.columns(3)
 
@@ -201,7 +201,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card" style="text-align: center;">
-                <span style="font-size: 2rem;">🏋️</span>
+                <span class="material-symbols-rounded" style="font-size: 2rem;">fitness_center</span>
                 <h4>Deportistas</h4>
                 <p style="font-size: 0.85rem; opacity: 0.7;">
                     Optimiza tus tiempos de consumo de cafeína y creatina
@@ -216,7 +216,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card" style="text-align: center;">
-                <span style="font-size: 2rem;">🥗</span>
+                <span class="material-symbols-rounded" style="font-size: 2rem;">restaurant</span>
                 <h4>Nutricionistas</h4>
                 <p style="font-size: 0.85rem; opacity: 0.7;">
                     Herramienta visual para explicar a tus pacientes
@@ -231,7 +231,7 @@ def render():
         st.markdown(
             """
             <div class="bio-card" style="text-align: center;">
-                <span style="font-size: 2rem;">📐</span>
+                <span class="material-symbols-rounded" style="font-size: 2rem;">school</span>
                 <h4>Estudiantes</h4>
                 <p style="font-size: 0.85rem; opacity: 0.7;">
                     Visualiza ecuaciones diferenciales aplicadas a
@@ -246,7 +246,7 @@ def render():
     # SOBRE EL PROYECTO
     # ================================================================
     st.markdown("---")
-    st.markdown("### 🎓 Sobre el Proyecto")
+    st.markdown("### :material/school: Sobre el Proyecto")
 
     st.markdown(
         """
@@ -261,17 +261,52 @@ def render():
     )
 
     # Stack tecnológico (colapsable para no saturar)
-    with st.expander("🛠️ Tecnologías utilizadas"):
+    with st.expander(":material/build: Tecnologías utilizadas"):
         st.markdown(
             """
             | Componente | Tecnología | Propósito |
-            |:---|:---|:---|
+            | :---: | :---: | :---: |
             | Interfaz Web | **Streamlit** | Aplicación interactiva sin necesidad de HTML/JS |
             | Motor Simbólico | **SymPy** | Resolución analítica con Transformada de Laplace |
             | Motor Numérico | **NumPy** | Método de Euler para aproximación paso a paso |
             | Visualización | **Plotly** | Gráficas interactivas con zoom y hover |
             | Lenguaje | **Python 3.11+** | Ecosistema científico robusto |
             """
+        )
+
+    # ================================================================
+    # PRÓXIMAMENTE
+    # ================================================================
+    st.markdown("---")
+    st.markdown("### :material/update: Próximamente en BioTracker")
+    
+    col_x, col_y, col_z = st.columns(3)
+    with col_x:
+        st.markdown(
+            """
+            <div class="bio-card">
+                <h4><span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1.5rem;">medication</span> Más Suplementos</h4>
+                <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.5rem;">Módulos de Proteína Whey, Melatonina y Vitaminas D/B12.</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
+    with col_y:
+        st.markdown(
+            """
+            <div class="bio-card">
+                <h4><span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1.5rem;">watch</span> Smartwatches</h4>
+                <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.5rem;">Sincronización de ritmo cardíaco y sueño desde Apple Watch o Garmin.</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
+    with col_z:
+        st.markdown(
+            """
+            <div class="bio-card">
+                <h4><span class="material-symbols-rounded" style="vertical-align: middle; font-size: 1.5rem;">monitoring</span> Perfil Histórico</h4>
+                <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.5rem;">Guarda tu historial de ingesta y observa métricas a largo plazo.</p>
+            </div>
+            """, unsafe_allow_html=True
         )
 
     # ================================================================
