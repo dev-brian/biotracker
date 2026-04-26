@@ -143,41 +143,41 @@ def render():
     if producto:
         cat_color = caffeine_data.CATEGORIAS[tipo_absorcion]["color"]
 
-        st.markdown(f'<div class="bio-card" style="border-left: 4px solid {cat_color}; margin-bottom: 1.5rem;">', unsafe_allow_html=True)
-        st.markdown(f"### {producto['nombre']}")
         st.markdown(
             f"""
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-                <div style="flex: 1; min-width: 200px;">
-                    <span style="
-                        background: {cat_color}22;
-                        color: {cat_color};
-                        padding: 2px 10px;
-                        border-radius: 12px;
-                        font-size: 0.8rem;
-                        font-weight: 600;
-                    ">{tipo_absorcion}</span>
-                    <p style="margin-top: 0.8rem; opacity: 0.8; font-size: 0.9rem;">
-                        <strong>:material/bar_chart: Cafeína:</strong> {producto['mg_min']}-{producto['mg_max']} mg por porción<br>
-                        <strong>:material/medication: Dosis:</strong> {producto['dosis_recomendada']}<br>
-                        <strong>:material/attach_money: Costo:</strong> {producto['costo']}
-                    </p>
-                </div>
-                <div style="flex: 1; min-width: 200px;">
-                    <p style="font-size: 0.85rem; opacity: 0.8;">
-                        <strong>:material/check_circle: Indicado para:</strong> {producto['indicado']}<br>
-                        <strong>:material/warning: No recomendado:</strong> {producto['contraindicado']}<br>
-                        <strong>:material/emoji_events: Deportes:</strong> {', '.join(producto['deportes'])}
-                    </p>
-                    <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 0.5rem;">
-                        <strong>Marcas:</strong> {', '.join(producto['marcas'][:4])}{'...' if len(producto['marcas']) > 4 else ''}
-                    </p>
+            <div class="bio-card" style="border-left: 4px solid {cat_color}; margin-bottom: 1.5rem; padding: 1.5rem;">
+                <h3 style="margin-top: 0; color: inherit;">{producto['nombre']}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <span style="
+                            background: {cat_color}22;
+                            color: {cat_color};
+                            padding: 2px 10px;
+                            border-radius: 12px;
+                            font-size: 0.8rem;
+                            font-weight: 600;
+                        ">{tipo_absorcion}</span>
+                        <p style="margin-top: 0.8rem; opacity: 0.8; font-size: 0.9rem; line-height: 1.6;">
+                            <strong><span class="material-symbols-rounded" style="vertical-align: text-bottom; font-size: 1.2em;">bar_chart</span> Cafeína:</strong> {producto['mg_min']}-{producto['mg_max']} mg por porción<br>
+                            <strong><span class="material-symbols-rounded" style="vertical-align: text-bottom; font-size: 1.2em;">medication</span> Dosis:</strong> {producto['dosis_recomendada']}<br>
+                            <strong><span class="material-symbols-rounded" style="vertical-align: text-bottom; font-size: 1.2em;">attach_money</span> Costo:</strong> {producto['costo']}
+                        </p>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <p style="font-size: 0.85rem; opacity: 0.8; line-height: 1.6;">
+                            <strong><span class="material-symbols-rounded" style="vertical-align: text-bottom; font-size: 1.2em;">check_circle</span> Indicado para:</strong> {producto['indicado']}<br>
+                            <strong><span class="material-symbols-rounded" style="vertical-align: text-bottom; font-size: 1.2em;">warning</span> No recomendado:</strong> {producto['contraindicado']}<br>
+                            <strong><span class="material-symbols-rounded" style="vertical-align: text-bottom; font-size: 1.2em;">emoji_events</span> Deportes:</strong> {', '.join(producto['deportes'])}
+                        </p>
+                        <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 0.5rem;">
+                            <strong>Marcas:</strong> {', '.join(producto['marcas'][:4])}{'...' if len(producto['marcas']) > 4 else ''}
+                        </p>
+                    </div>
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
-        st.markdown('</div>', unsafe_allow_html=True)
 
     # ================================================================
     # CÁLCULOS
