@@ -315,7 +315,7 @@ def render():
     st.markdown("---")
     st.markdown(
         """
-        <div style="text-align: center; opacity: 0.4; font-size: 0.8rem; padding: 1rem 0;">
+        <div style="text-align: center; opacity: 0.7; font-size: 1.05rem; padding: 1rem 0; line-height: 1.6;">
             BioTracker v1.0 — Proyecto Final · Matemáticas para la Ingeniería II<br>
             Universidad Tecnológica de Tlaxcala · 8° Semestre IDGS · Abril 2026<br>
             <br>

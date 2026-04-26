@@ -406,11 +406,23 @@ if st.session_state.dark_mode_active:
     }
     
     /* TEXT COLORS */
-    html, body, p, span, h1, h2, h3, h4, h5, h6, label, [class*="css"], .katex {
+    html, body, p, span, h1, h2, h3, h4, h5, h6, label, [class*="css"], .katex, ul, li, strong, b, em, i, a, [data-testid="stMarkdownContainer"] div, [data-testid="stMarkdownContainer"] * {
         color: #F8FAFC !important;
     }
     .text-muted, p.text-muted, [data-testid="stSidebar"] p {
         color: #94A3B8 !important;
+    }
+    
+    /* ENHANCED READABILITY */
+    .katex {
+        font-size: 1.15em !important;
+    }
+    li, p, [data-testid="stMarkdownContainer"] {
+        font-size: 1.05rem !important;
+        line-height: 1.6 !important;
+    }
+    .bio-card p {
+        font-size: 0.85rem !important;
     }
     
     /* GRADIENT PRIMARIO (Vitalidad) */
@@ -428,6 +440,7 @@ if st.session_state.dark_mode_active:
         -webkit-backdrop-filter: blur(16px) !important;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
         border-radius: 16px !important;
+        height: 100% !important;
     }
     
     [data-testid="stExpander"] details summary {
