@@ -174,7 +174,7 @@ def render():
     fig.add_trace(go.Scatter(
         x=t_analitico, y=s_analitico_pct,
         mode='lines',
-        name='Saturación real (solución exacta)',
+        name='Solución Exacta',
         line=dict(color=color_linea, width=3),
         hovertemplate='<b>Día %{x:.0f}</b><br>Saturación: %{y:.1f}%<extra></extra>'
     ))
@@ -183,7 +183,7 @@ def render():
     fig.add_trace(go.Scatter(
         x=t_euler, y=s_euler_pct,
         mode='markers',
-        name=f'Aproximación numérica (Euler, dt={dt})',
+        name=f'Euler (dt={dt})',
         marker=dict(color=color_euler, size=5, symbol='circle', opacity=0.7),
         hovertemplate='<b>Día %{x:.0f}</b><br>Euler: %{y:.1f}%<extra></extra>'
     ))
@@ -219,20 +219,21 @@ def render():
         xaxis_title="Días de suplementación",
         yaxis_title="Saturación muscular (%)",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(l=40, r=40, t=60, b=40)
+        legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5),
+        margin=dict(l=20, r=20, t=60, b=100),
+        height=450
     )
     
     if is_dark:
         layout_kwargs.update(dict(
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#94A3B8")
+            font=dict(color="#F8FAFC")
         ))
         
     fig.update_layout(**layout_kwargs)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, theme=None)
 
     # ================================================================
     # PANEL PRO — Proceso matemático detallado
